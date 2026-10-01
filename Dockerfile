@@ -2,8 +2,6 @@
 
 FROM node:24-slim AS base
 ENV PNPM_HOME=/pnpm PATH=/pnpm:$PATH
-# Toolchain to compile better-sqlite3 when no prebuilt binary matches; only used in the build stages.
-RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ && rm -rf /var/lib/apt/lists/*
 RUN npm install --global pnpm@11.10.0
 WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -14,11 +12,18 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 COPY . .
 RUN pnpm build
 
-# Production dependencies only (includes the native better-sqlite3 and sharp builds).
+# Production dependencies only (includes the native better-sqlite3 and sharp binaries).
 FROM base AS prod-deps
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --prod
+# better-sqlite3 ships binaries for 8 platforms plus SQLite's C sources; keep only this platform's binary.
+RUN cd node_modules/.pnpm/better-sqlite3@*/node_modules/better-sqlite3 \
+  && rm -rf deps src \
+  && find prebuilds -type f ! -name "$(node -p 'process.platform + "-" + process.arch').node" -delete
 
-FROM node:24-slim
+# Same Debian release as node:24-slim, with only the node binary copied in: npm and corepack aren't needed at runtime.
+FROM debian:bookworm-slim
+COPY --from=base /usr/local/bin/node /usr/local/bin/node
+RUN groupadd --gid 1000 node && useradd --uid 1000 --gid node --create-home node
 WORKDIR /app
 ENV NODE_ENV=production HOST=0.0.0.0 PORT=4321 DATABASE_PATH=/app/data/app.db
 COPY --from=prod-deps /app/node_modules ./node_modules

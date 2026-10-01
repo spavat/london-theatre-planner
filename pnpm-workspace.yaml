@@ -1,4 +1,5 @@
 allowBuilds:
   esbuild: true
-  better-sqlite3: true
+  # Ships prebuilt binaries for every platform we run on; skipping its node-gyp step avoids needing a C++ toolchain.
+  better-sqlite3: false
   sharp: true
