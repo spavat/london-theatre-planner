@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1790866274044,
+      "tag": "0000_mushy_korath",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1790871497092,
+      "tag": "0001_common_pepper_potts",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1790871977138,
+      "tag": "0002_milky_sunspot",
+      "breakpoints": true
+    }
+  ]
+}

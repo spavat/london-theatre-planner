@@ -1,0 +1,1 @@
+ALTER TABLE `scrape_runs` ADD `heartbeat_at` text;

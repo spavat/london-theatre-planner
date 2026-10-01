@@ -1,0 +1,50 @@
+[
+ {
+  "id": 287,
+  "name": "The Book of Mormon",
+  "productType": "SHOW",
+  "areRegularTicketsAvailable": true,
+  "slug": "book-of-mormon-tickets",
+  "venue": "Prince of Wales Theatre"
+ },
+ {
+  "id": 12634,
+  "name": "La traviata - English National Opera ",
+  "productType": "SHOW",
+  "areRegularTicketsAvailable": true,
+  "slug": null,
+  "venue": "London Coliseum"
+ },
+ {
+  "id": 22807,
+  "name": "London Eye Standard Experience",
+  "productType": "ATTRACTION",
+  "areRegularTicketsAvailable": true,
+  "slug": null,
+  "venue": "The London Eye"
+ },
+ {
+  "id": 45150,
+  "name": "London Theatre Gift Cards",
+  "productType": "GIFT_CARD",
+  "areRegularTicketsAvailable": true,
+  "slug": "london-theatre-gift-cards",
+  "venue": ""
+ },
+ {
+  "id": 47411,
+  "name": "Feeling Afraid As If Something Terrible Is Going To Happen",
+  "productType": "SHOW",
+  "areRegularTicketsAvailable": true,
+  "slug": "feeling-afraid-as-if-something-terrible-is-going-to-happen",
+  "venue": "The Other Palace - Main Theatre"
+ },
+ {
+  "id": 44286,
+  "name": "A Whistle in the Dark",
+  "productType": "SHOW",
+  "areRegularTicketsAvailable": false,
+  "slug": "a-whistle-in-the-dark",
+  "venue": "Lyttelton Theatre"
+ }
+]
