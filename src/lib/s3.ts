@@ -15,12 +15,21 @@ function s3() {
 
 const bucket = () => requiredEnv("S3_BUCKET");
 
+/**
+ * Adds the optional S3_FOLDER prefix (to share a bucket with other apps). Only applied here:
+ * the rest of the app, the database and image URLs all use unprefixed keys like "shows/x.avif".
+ */
+export function withFolder(key: string, folder = process.env.S3_FOLDER ?? ""): string {
+  const prefix = folder.replace(/^\/+|\/+$/g, "");
+  return prefix ? `${prefix}/${key}` : key;
+}
+
 export async function putObject(key: string, body: Uint8Array, contentType: string) {
-  await s3().send(new PutObjectCommand({ Bucket: bucket(), Key: key, Body: body, ContentType: contentType }));
+  await s3().send(new PutObjectCommand({ Bucket: bucket(), Key: withFolder(key), Body: body, ContentType: contentType }));
 }
 
 export async function getObject(key: string) {
-  return s3().send(new GetObjectCommand({ Bucket: bucket(), Key: key }));
+  return s3().send(new GetObjectCommand({ Bucket: bucket(), Key: withFolder(key) }));
 }
 
 export async function ensureBucket() {

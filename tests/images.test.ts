@@ -9,6 +9,11 @@ describe("toAvif", () => {
     expect(meta).toMatchObject({ format: "heif", compression: "av1", width: 8, height: 4 });
   });
 
+  it("scales wide images down to 800px, keeping the aspect ratio", async () => {
+    const wide = await sharp({ create: { width: 1600, height: 1200, channels: 3, background: "#00c" } }).png().toBuffer();
+    expect(await sharp(await toAvif(wide)).metadata()).toMatchObject({ width: 800, height: 600 });
+  });
+
   it("rejects data that isn't an image", async () => {
     await expect(toAvif(new TextEncoder().encode("<html>Not found</html>"))).rejects.toThrow();
   });
