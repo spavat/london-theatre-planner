@@ -49,3 +49,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          # No provenance attestation: one plain image per push instead of an index plus two untagged manifests.
+          provenance: false
+      # Keep the 10 most recent images in GHCR; older sha-… versions are deleted.
+      - uses: actions/delete-package-versions@v5
+        with:
+          package-name: ${{ github.event.repository.name }}
+          package-type: container
+          min-versions-to-keep: 10
