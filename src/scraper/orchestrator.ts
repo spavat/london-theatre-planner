@@ -13,7 +13,7 @@ export interface ScrapeOptions {
   primary: Source;
   fallback?: Source;
   storeImage: (slug: string, imageUrl: string) => Promise<string>;
-  trigger?: "cli" | "ui";
+  trigger?: "cli" | "ui" | "schedule";
   /** Only scrape shows whose title key contains this text. */
   filter?: string;
   limit?: number;

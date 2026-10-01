@@ -1,0 +1,24 @@
+# Production stack for the VPS. Copy this file and a filled-in .env (see deploy/.env.example) to the server,
+# then: docker compose pull && docker compose up -d
+services:
+  london-theatre-planner:
+    image: ghcr.io/spavat/london-theatre-planner:latest
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - data:/app/data # SQLite database
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.londontheatreplanner.rule=Host(`london-theatre-planner.mydomain.fr`)"
+      - "traefik.http.routers.londontheatreplanner.entrypoints=websecure"
+      - "traefik.http.routers.londontheatreplanner.tls.certresolver=myresolver"
+      - "traefik.http.services.londontheatreplanner.loadbalancer.server.port=4321"
+    networks:
+      - traefik-network
+
+volumes:
+  data:
+
+networks:
+  traefik-network:
+    external: true

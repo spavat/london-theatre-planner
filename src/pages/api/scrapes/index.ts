@@ -1,11 +1,11 @@
 import { createHash, timingSafeEqual } from "node:crypto";
 import type { APIRoute } from "astro";
-import { and, count, countDistinct, desc, gte, inArray, isNull } from "drizzle-orm";
+import { count, countDistinct, desc, gte } from "drizzle-orm";
 import { db } from "@/db";
 import { performances, scrapeRuns } from "@/db/schema";
 import type { ScrapeOverview } from "@/lib/api-types";
 import { json } from "@/lib/params";
-import { toApiRun } from "@/lib/scrape-runs";
+import { lastSuccessfulFullScrape, toApiRun } from "@/lib/scrape-runs";
 import { startBackgroundScrape } from "@/scraper/background";
 import { ScrapeInProgressError } from "@/scraper/orchestrator";
 
@@ -17,16 +17,10 @@ export const GET: APIRoute = () => {
     .from(performances)
     .where(gte(performances.startsAt, new Date().toISOString()))
     .get()!;
-  const lastSuccess = db
-    .select({ finishedAt: scrapeRuns.finishedAt })
-    .from(scrapeRuns)
-    .where(and(isNull(scrapeRuns.scope), inArray(scrapeRuns.status, ["ok", "partial"])))
-    .orderBy(desc(scrapeRuns.id))
-    .get();
 
   const overview: ScrapeOverview = {
     runs: runs.map(toApiRun),
-    stats: { ...totals, lastSuccessAt: lastSuccess?.finishedAt ?? null },
+    stats: { ...totals, lastSuccessAt: lastSuccessfulFullScrape(db) },
   };
   return json(overview);
 };
@@ -42,7 +36,7 @@ export const POST: APIRoute = ({ request }) => {
   if (!timingSafeEqual(digest(given), digest(expected))) return json({ error: "Wrong scrape token" }, 401);
 
   try {
-    const run = startBackgroundScrape(db);
+    const run = startBackgroundScrape(db, "ui");
     return json({ id: run.id }, 202);
   } catch (err) {
     if (err instanceof ScrapeInProgressError) return json({ error: err.message, id: err.runId }, 409);

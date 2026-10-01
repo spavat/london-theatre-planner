@@ -40,3 +40,19 @@ pnpm test         # parser tests run on saved HTML in tests/fixtures
 pnpm check        # type-check
 pnpm db:generate  # after editing src/db/schema.ts
 ```
+
+## Deployment
+
+Every push to `main` runs the tests and type-check, then publishes `ghcr.io/spavat/london-theatre-planner:latest` (plus a `sha-…` tag) through GitHub Actions.
+
+On the VPS (Docker + Traefik on the external `traefik-network`):
+
+1. Copy `deploy/docker-compose.yml` to a folder on the server and set your domain in the `Host(...)` rule.
+2. Next to it, create `.env` from `deploy/.env.example`: S3 endpoint, bucket and keys from your provider, and a `SCRAPE_TOKEN`. Create the bucket with your provider first.
+3. `docker compose pull && docker compose up -d`
+
+On startup the container applies database migrations, then starts the weekly scrape (Mondays 05:00 London time, `SCRAPE_CRON` to change it). If no full scrape has run in the last week, one starts a minute after boot, so the first deploy fills the database by itself (about 20 minutes, mostly converting images).
+
+- Update: `docker compose pull && docker compose up -d`
+- Manual scrape: `docker compose exec london-theatre-planner node dist/scrape.mjs [--show "lion king"]`
+- The SQLite database lives in the `data` volume; back it up with your other volumes.

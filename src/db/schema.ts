@@ -58,7 +58,7 @@ export type RunStatus = "running" | "ok" | "partial" | "failed" | "interrupted";
 export const scrapeRuns = sqliteTable("scrape_runs", {
   id: integer().primaryKey({ autoIncrement: true }),
   source: text().notNull(),
-  trigger: text().$type<"cli" | "ui">().notNull().default("cli"),
+  trigger: text().$type<"cli" | "ui" | "schedule">().notNull().default("cli"),
   /** null for a full run; otherwise what restricted it (e.g. "show=lion king, limit=5"). */
   scope: text(),
   /** Source the show list came from (differs from `source` when listing fell back). */
