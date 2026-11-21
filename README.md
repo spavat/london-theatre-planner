@@ -45,14 +45,11 @@ pnpm db:generate  # after editing src/db/schema.ts
 
 Every push to `main` runs the tests and type-check, then publishes `ghcr.io/spavat/london-theatre-planner:latest` (plus a tag with the full commit sha) through GitHub Actions. A `deploy` job then waits for an approval in the `production` environment and switches the VPS to that sha (stack managed by the `infra` repo).
 
-On the VPS (Docker + Traefik on the external `traefik-network`):
-
-1. Copy `deploy/docker-compose.yml` to a folder on the server and set your domain in the `Host(...)` rule.
-2. Next to it, create `.env` from `deploy/.env.example`: S3 endpoint, bucket and keys from your provider, and a `SCRAPE_TOKEN`. Create the bucket with your provider first.
-3. `docker compose pull && docker compose up -d`
+The stack (compose file, `.env` written from ansible-vault) lives in the `infra` repo (`stacks/london-theatre-planner/`) and is deployed to `/opt/stacks/london-theatre-planner` on the VPS. Production variables: `stacks/london-theatre-planner/.env.j2` in `infra` (`.env.example` here is for local development).
 
 On startup the container applies database migrations, then starts the weekly scrape (Mondays 05:00 London time, `SCRAPE_CRON` to change it). If no full scrape has run in the last week, one starts a minute after boot, so the first deploy fills the database by itself (about 20 minutes, mostly converting images).
 
-- Update: `docker compose pull && docker compose up -d`
+On the VPS, from `/opt/stacks/london-theatre-planner`:
+
 - Manual scrape: `docker compose exec london-theatre-planner node dist/scrape.mjs [--show "lion king"]`
-- The SQLite database lives in the `data` volume; back it up with your other volumes.
+- The SQLite database is in `/srv/appdata/london-theatre-planner/data`, saved by the nightly backup (`infra/docs/backup.md`).
