@@ -43,7 +43,7 @@ pnpm db:generate  # after editing src/db/schema.ts
 
 ## Deployment
 
-Every push to `main` runs the tests and type-check, then publishes `ghcr.io/spavat/london-theatre-planner:latest` (plus a `sha-…` tag) through GitHub Actions.
+Every push to `main` runs the tests and type-check, then publishes `ghcr.io/spavat/london-theatre-planner:latest` (plus a tag with the full commit sha) through GitHub Actions. A `deploy` job then waits for an approval in the `production` environment and switches the VPS to that sha (stack managed by the `infra` repo).
 
 On the VPS (Docker + Traefik on the external `traefik-network`):
 
